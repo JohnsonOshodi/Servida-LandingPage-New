@@ -1,0 +1,28 @@
+uploads/
+node_modules/
+npm-debug.log*
+yarn-error.log
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+debug.log
+error.log
+
+# Database files (if using SQLite or similar)
+*.sqlite
+*.sqlite3
+db.sqlite*
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# Compiled files
+dist/
+build/
+
+# VS Code settings (optional)
+.vscode/.env
