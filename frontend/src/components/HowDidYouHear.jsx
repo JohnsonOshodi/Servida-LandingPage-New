@@ -1,6 +1,11 @@
+import { useBookingStore } from '@/store/BookCleaningStore';
 import { useState } from 'react';
 
-const HowDidYouHear = ({ totalPrice }) => {
+const HowDidYouHear = () => {
+  const {
+    getTotalPrice
+  } = useBookingStore()
+
   const [toggles, setToggles] = useState({
     whatsapp: false,
     linkedin: false,
@@ -40,14 +45,12 @@ const HowDidYouHear = ({ totalPrice }) => {
                 onChange={() => handleToggle(id)}
               />
               <div
-                className={`block bg-gray-600 w-[5rem] h-[2.5rem] rounded-full transition duration-300 ${
-                  toggles[id] ? 'bg-sageDarkBlue' : ''
-                }`}
+                className={`block bg-gray-600 w-[5rem] h-[2.5rem] rounded-full transition duration-300 ${toggles[id] ? 'bg-sageDarkBlue' : ''
+                  }`}
               ></div>
               <div
-                className={`dot absolute left-1 top-1 bg-white w-[2.1rem] h-[2.1rem] rounded-full transition-transform duration-300 ${
-                  toggles[id] ? 'translate-x-[2.5rem]' : ''
-                }`}
+                className={`dot absolute left-1 top-1 bg-white w-[2.1rem] h-[2.1rem] rounded-full transition-transform duration-300 ${toggles[id] ? 'translate-x-[2.5rem]' : ''
+                  }`}
               ></div>
             </div>
             <span className="text-[1.2rem] ml-4">
@@ -60,7 +63,7 @@ const HowDidYouHear = ({ totalPrice }) => {
       <div className="flex flex-col items-center gap-[1rem] justify-center mt-3">
         <span className="font-semibold text-[1.4rem]">Cost</span>
         <span className="font-bold text-[3.6rem] text-sageFormBlue">
-          ₦{totalPrice}
+          ₦{getTotalPrice().toLocaleString()}
         </span>
       </div>
     </div>

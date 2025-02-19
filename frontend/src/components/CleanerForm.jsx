@@ -65,17 +65,17 @@ const CleanerForm = () => {
         <CleaningPlan
           formData={formData}
           setFormData={setFormData}
-          setTotalPrice={setTotalPrice}
-          totalPrice={totalPrice}
+          // setTotalPrice={setTotalPrice}
+          // totalPrice={totalPrice}
         />
       );
     } else if (page === 2) {
       return (
         <HouseDescription
-          formData={formData}
-          setFormData={setFormData}
-          setTotalPrice={setTotalPrice}
-          totalPrice={totalPrice}
+          // formData={formData}
+          // setFormData={setFormData}
+          // setTotalPrice={setTotalPrice}
+          // totalPrice={totalPrice}
         />
       );
     } else if (page === 3) {
@@ -83,8 +83,8 @@ const CleanerForm = () => {
         <ExtraInfo
           formData={formData}
           setFormData={setFormData}
-          setTotalPrice={setTotalPrice}
-          totalPrice={totalPrice}
+          // setTotalPrice={setTotalPrice}
+          // totalPrice={totalPrice}
         />
       );
     } else {
