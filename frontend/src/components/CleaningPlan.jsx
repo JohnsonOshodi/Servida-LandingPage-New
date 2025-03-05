@@ -1,33 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useBookingStore } from '@/store/BookCleaningStore';
 
-const CleaningPlan = ({ formData, setFormData, setTotalPrice, totalPrice }) => {
-  const [selectedPrices, setSelectedPrices] = useState({
-    cleaningPlan: 0,
-    cleaningFrequency: 0,
-    arrivalTime: 0,
-  });
+const CleaningPlan = ({ formData, setFormData }) => {
+  const {
+    selectedTier,
+    frequency,
+    setTier,
+    setFrequency,
+    getTotalPrice
+  } = useBookingStore();
 
+  // Sync form data with store
   useEffect(() => {
-    const total = Object.values(selectedPrices).reduce(
-      (acc, price) => acc + price,
-      0
-    );
-    setTotalPrice(total);
-  }, [selectedPrices, setTotalPrice]);
-
-  const handleSelectChange = e => {
-    const { name, value } = e.target;
-    const price = parseFloat(e.target.selectedOptions[0].dataset.price);
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    setSelectedPrices(prevPrices => ({
-      ...prevPrices,
-      [name]: price,
+    setFormData(prev => ({
+      ...prev,
+      cleaningPlan: selectedTier,
+      cleaningFrequency: frequency
     }));
+  }, [selectedTier, frequency, setFormData]);
+
+  const handlePlanChange = (e) => {
+    const value = e.target.value;
+    setTier(value === 'basic-cleaning' ? 'basic' : 'deep');
+  };
+
+  const handleFrequencyChange = (e) => {
+    const value = e.target.value;
+    const frequencyMap = {
+      weekly: 'onceAWeek',
+      biweekly: 'twiceAWeek',
+      monthly: 'everyday'
+    };
+    setFrequency(frequencyMap[value] || 'onceOff');
   };
 
   return (
@@ -38,22 +42,13 @@ const CleaningPlan = ({ formData, setFormData, setTotalPrice, totalPrice }) => {
         </label>
         <select
           name="cleaningPlan"
-          value={formData.cleaningPlan || ''}
-          onChange={handleSelectChange}
+          value={selectedTier === 'basic' ? 'basic-cleaning' : 'deep-cleaning'}
+          onChange={handlePlanChange}
           className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
         >
-          <option value="" data-price="0">
-            --select--
-          </option>
-          <option value="basic" data-price="50">
-            Basic - ₦50
-          </option>
-          <option value="standard" data-price="75">
-            Standard - ₦75
-          </option>
-          <option value="premium" data-price="100">
-            Premium - ₦100
-          </option>
+          <option value="">Select an option</option>
+          <option value="basic-cleaning">Basic Cleaning</option>
+          <option value="deep-cleaning">Deep Cleaning</option>
         </select>
       </div>
 
@@ -63,22 +58,18 @@ const CleaningPlan = ({ formData, setFormData, setTotalPrice, totalPrice }) => {
         </label>
         <select
           name="cleaningFrequency"
-          value={formData.cleaningFrequency || ''}
-          onChange={handleSelectChange}
+          value={Object.entries({
+            onceAWeek: 'weekly',
+            twiceAWeek: 'biweekly',
+            everyday: 'monthly'
+          }).find(([key]) => key === frequency)?.[1] || ''}
+          onChange={handleFrequencyChange}
           className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
         >
-          <option value="" data-price="0">
-            --select--
-          </option>
-          <option value="weekly" data-price="20">
-            Weekly - ₦20
-          </option>
-          <option value="biweekly" data-price="35">
-            Bi-weekly - ₦35
-          </option>
-          <option value="monthly" data-price="50">
-            Monthly - ₦50
-          </option>
+          <option value="">Select an option</option>
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Bi-weekly</option>
+          <option value="monthly">Monthly</option>
         </select>
       </div>
 
@@ -90,42 +81,32 @@ const CleaningPlan = ({ formData, setFormData, setTotalPrice, totalPrice }) => {
           type="date"
           name="startDate"
           value={formData.startDate || ''}
-          onChange={e =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
+          onChange={e => setFormData({ ...formData, startDate: e.target.value })}
           className="w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm bg-sageMidWhite text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue"
         />
       </div>
 
       <div className="w-[50rem]">
-        <label className="text-[1.4rem] font-semibold block mb-2">
-          Preferred time for cleaner to arrive each time:
+        <label className="text-[1.4rem] font-semibold block mb-[1rem]">
+          Preferred time for cleaner to start each time
         </label>
         <select
-          name="arrivalTime"
-          value={formData.arrivalTime || ''}
-          onChange={handleSelectChange}
+          name="cleaningPlan"
+          // value={selectedTier === 'basic' ? 'basic-cleaning' : 'deep-cleaning'}
+          // onChange={handlePlanChange}
           className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
         >
-          <option value="" data-price="0">
-            --select--
-          </option>
-          <option value="morning" data-price="10">
-            Morning - ₦10
-          </option>
-          <option value="afternoon" data-price="15">
-            Afternoon - ₦15
-          </option>
-          <option value="evening" data-price="20">
-            Evening - ₦20
-          </option>
+          <option value="">Select an option</option>
+          <option value="basic-cleaning">Morning</option>
+          <option value="deep-cleaning">Afternoon</option>
+          <option value="deep-cleaning">Evening</option>
         </select>
       </div>
 
       <div className="flex flex-col items-center gap-[1rem] justify-center mt-3">
         <span className="font-semibold text-[1.4rem]">Cost</span>
         <span className="font-bold text-[3.6rem] text-sageFormBlue">
-          ₦{totalPrice}
+          ₦{getTotalPrice().toLocaleString()}
         </span>
       </div>
     </form>
