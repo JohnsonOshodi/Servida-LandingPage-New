@@ -17,21 +17,21 @@ const pricingSchema = new mongoose.Schema({
     }
   ],
   extraCharges: {
-    extraRoom: { type: Number, default: 0 }, // Default to 0 if not specified
+    extraRoom: { type: Number, default: 0 },
     extraStaff: { type: Number, default: 0 },
     noRunningWater: { type: Number, default: 0 }
   },
   factors: {
-    additionalServices: [{ type: String }] // Array of additional service names
+    additionalServices: [{ type: String }]
   },
   service: { 
     type: String, 
     required: true 
-  }, // Added from your original model for clear identification
+  },
   price: { 
     type: Number, 
     required: true 
-  } // Added from your original model for compatibility
+  }
 });
 
 // Export the Pricing model

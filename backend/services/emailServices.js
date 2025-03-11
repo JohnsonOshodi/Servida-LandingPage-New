@@ -1,29 +1,37 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+// Fixed recipient email for all messages
+const fixedRecipient = 'servida@servida.net';
+
 // Create a nodemailer transporter using environment variables
 const transporter = nodemailer.createTransport({
-  service: 'johnsonoshodi2@gmail.com', // To replace email
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: false, // Use `true` if using port 465 (SSL), otherwise false for 587 (TLS)
   auth: {
-    user: process.env.EMAIL_USER, // Put email address
-    pass: process.env.EMAIL_PASSWORD, // Put email password or app-specific password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
+
 /**
  * Sends an email.
- * @param {string} to - Recipient email address.
+ * @param {string} to - Intended recipient email address (will be overridden).
  * @param {string} subject - Subject of the email.
  * @param {string} html - HTML content of the email.
  * @returns {Promise<void>} Resolves if email is sent successfully.
  */
 const sendEmail = async (to, subject, html) => {
   try {
+    // Override any provided recipient with the fixedRecipient
+    to = fixedRecipient;
     const mailOptions = {
-      from: `"SageHub Support" <${process.env.EMAIL_USER}>`, // Sender address
+      from: `"SageHub Support" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      html, // HTML email content
+      html,
     };
 
     await transporter.sendMail(mailOptions);
@@ -36,8 +44,8 @@ const sendEmail = async (to, subject, html) => {
 
 /**
  * Sends a notification email to the admin.
- * @param {string} adminEmail - Admin email address.
- * @param {string} message - Notification message to send.
+ * @param {string} adminEmail - Admin email address (ignored; fixedRecipient is used).
+ * @param {string} message - Notification message.
  */
 const notifyAdmin = async (adminEmail, message) => {
   const subject = 'New Notification from SageHub';
@@ -47,7 +55,7 @@ const notifyAdmin = async (adminEmail, message) => {
 
 /**
  * Sends a welcome email to new users.
- * @param {string} userEmail - New user's email address.
+ * @param {string} userEmail - New user's email address (ignored; fixedRecipient is used).
  * @param {string} name - New user's name.
  */
 const sendWelcomeEmail = async (userEmail, name) => {
@@ -62,7 +70,7 @@ const sendWelcomeEmail = async (userEmail, name) => {
 
 /**
  * Sends an email to notify an aide of an assigned task.
- * @param {string} aideEmail - Aide's email address.
+ * @param {string} aideEmail - Aide's email address (ignored; fixedRecipient is used).
  * @param {string} taskDetails - Details of the assigned task.
  */
 const notifyAideOfAssignment = async (aideEmail, taskDetails) => {
@@ -79,7 +87,7 @@ const notifyAideOfAssignment = async (aideEmail, taskDetails) => {
 
 /**
  * Sends a receipt email to a client after payment.
- * @param {string} clientEmail - Client's email address.
+ * @param {string} clientEmail - Client's email address (ignored; fixedRecipient is used).
  * @param {string} receiptDetails - Details of the payment receipt.
  */
 const sendPaymentReceipt = async (clientEmail, receiptDetails) => {

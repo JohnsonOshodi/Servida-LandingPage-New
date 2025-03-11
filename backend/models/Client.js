@@ -10,13 +10,13 @@ const clientSchema = new mongoose.Schema(
     idCard: { type: String, required: true },
     ninDocument: { type: String, required: true },
     passportPhoto: { type: String, required: true },
-    driversLicense: { type: String },
-    intlPassport: { type: String },
+    driversLicense: { type: String, default: null },
+    intlPassport: { type: String, default: null },
     role: { type: String, default: 'client' },
     reviews: [
       {
-        serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-        reviewText: { type: String, required: true },
+        serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' }, // Update 'Order' to 'Service' if needed
+        reviewText: { type: String, required: false },
         rating: { type: Number, required: true, min: 1, max: 5 },
       },
     ],

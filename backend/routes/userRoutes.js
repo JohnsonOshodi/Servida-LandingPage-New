@@ -1,27 +1,28 @@
-const express = require('express');
-const {
-  registerUser,
-  loginUser,
-  getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
-  approveAide,
-} = require('../controllers/userController');
-const { protect, isAdmin } = require('../middleware/authMiddleware');
+const express = require("express");
+const userController = require("../controllers/userController"); 
+
+const { 
+  registerUser, 
+  loginUser, 
+  getAllUsers, 
+  getUserById, 
+  updateUser, 
+  deleteUser, 
+  approveAide 
+} = userController;
+
+const { protect, authorizeRole } = require("../middleware/authMiddleware"); // Fixed 'authenticateUser' to 'protect'
 
 const router = express.Router();
 
-// Public Routes
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-
-// Protected Routes
-router.use(protect); // Protect all routes below this middleware
-router.get('/', isAdmin, getAllUsers);
-router.get('/:userId', isAdmin, getUserById);
-router.put('/:userId', updateUser);
-router.delete('/:userId', isAdmin, deleteUser);
-router.put('/:userId/approve', isAdmin, approveAide);
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.get("/users", protect, authorizeRole(["admin"]), getAllUsers);
+router.get("/users/:userId", protect, authorizeRole(["admin"]), getUserById);
+router.put("/users/:userId", protect, updateUser);
+router.delete("/users/:userId", protect, authorizeRole(["admin"]), deleteUser);
+router.patch("/approve-aide/:userId", protect, authorizeRole(["admin"]), approveAide);
 
 module.exports = router;
+
+

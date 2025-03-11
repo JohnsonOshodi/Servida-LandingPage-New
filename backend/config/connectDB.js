@@ -1,13 +1,22 @@
 const mongoose = require('mongoose');
-const { mongoURI } = require('./dbConfig');
+require('dotenv').config(); 
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(mongoURI); 
-    console.log('MongoDB connected successfully');
+    const mongoURI = process.env.MONGO_URI; 
+    if (!mongoURI) {
+      throw new Error('MONGO_URI is not defined in the .env file');
+    }
+
+    const conn = await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error('Database connection failed:', error);
-    process.exit(1);
+    console.error(`Database connection failed: ${error.message}`);
+    process.exit(1); // Exit process on failure
   }
 };
 

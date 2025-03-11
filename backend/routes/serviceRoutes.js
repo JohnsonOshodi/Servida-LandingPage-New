@@ -10,3 +10,4 @@ router.get('/', serviceController.getAllServices);
 router.post('/', serviceMiddleware.validateServiceData, serviceController.createService);
 
 module.exports = router;
+

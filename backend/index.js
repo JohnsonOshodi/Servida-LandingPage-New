@@ -16,7 +16,7 @@ app.use(morgan('dev')); // HTTP request logger
 // Routes
 app.use('/api/users', userRoutes);
 
-// Error handling middleware
+// Global error handling middleware
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     success: false,

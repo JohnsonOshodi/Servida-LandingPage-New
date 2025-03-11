@@ -1,8 +1,9 @@
 const express = require('express');
-const { newCleanerMessage } = require('../controllers/cleanerController');
+const { submitCleanerForm, newCleanerMessage } = require('../controllers/cleanerController');
 
 const router = express.Router();
 
-router.get('/signup-message', newCleanerMessage);
+router.post('/submit', submitCleanerForm);
+router.get('/welcome', newCleanerMessage);
 
 module.exports = router;

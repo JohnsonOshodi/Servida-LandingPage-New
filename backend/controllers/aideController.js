@@ -26,6 +26,17 @@ exports.signupAide = async (req, res) => {
       servicesOffered,
     } = req.body;
 
+    // Check if email already exists
+    const existingAide = await Aide.findOne({ email });
+    if (existingAide) {
+      return res.status(400).json({ error: 'Aide with this email already exists.' });
+    }
+
+    // Ensure required fields are present
+    if (!firstName || !lastName || !email || !phoneNumber) {
+      return res.status(400).json({ error: 'Please provide all required fields.' });
+    }
+
     const newAide = new Aide({
       firstName,
       lastName,
@@ -52,11 +63,11 @@ exports.signupAide = async (req, res) => {
     });
 
     await newAide.save();
-
     res.status(201).json({ message: 'Aide registered successfully', aide: newAide });
+
   } catch (error) {
     console.error('Error signing up aide:', error);
-    res.status(500).json({ message: 'Failed to register aide', error: error.message });
+    res.status(500).json({ error: 'Failed to register aide. Please try again later.' });
   }
 };
 
@@ -64,10 +75,15 @@ exports.signupAide = async (req, res) => {
 exports.getAllAides = async (req, res) => {
   try {
     const aides = await Aide.find();
-    res.status(200).json(aides);
+    res.status(200).json({
+      message: 'Aides retrieved successfully',
+      count: aides.length,
+      aides,
+    });
+
   } catch (error) {
     console.error('Error fetching aides:', error);
-    res.status(500).json({ message: 'Failed to fetch aides', error: error.message });
+    res.status(500).json({ error: 'Failed to fetch aides. Please try again later.' });
   }
 };
 
@@ -77,16 +93,21 @@ exports.updateAide = async (req, res) => {
     const aideId = req.params.id;
     const updates = req.body;
 
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No update data provided.' });
+    }
+
     const updatedAide = await Aide.findByIdAndUpdate(aideId, updates, { new: true });
 
     if (!updatedAide) {
-      return res.status(404).json({ message: 'Aide not found' });
+      return res.status(404).json({ error: 'Aide not found' });
     }
 
     res.status(200).json({ message: 'Aide updated successfully', aide: updatedAide });
+
   } catch (error) {
     console.error('Error updating aide:', error);
-    res.status(500).json({ message: 'Failed to update aide', error: error.message });
+    res.status(500).json({ error: 'Failed to update aide. Please try again later.' });
   }
 };
 
@@ -94,16 +115,16 @@ exports.updateAide = async (req, res) => {
 exports.deleteAide = async (req, res) => {
   try {
     const aideId = req.params.id;
-
     const deletedAide = await Aide.findByIdAndDelete(aideId);
 
     if (!deletedAide) {
-      return res.status(404).json({ message: 'Aide not found' });
+      return res.status(404).json({ error: 'Aide not found' });
     }
 
-    res.status(200).json({ message: 'Aide deleted successfully' });
+    res.status(200).json({ message: 'Aide deleted successfully', aide: deletedAide });
+
   } catch (error) {
     console.error('Error deleting aide:', error);
-    res.status(500).json({ message: 'Failed to delete aide', error: error.message });
+    res.status(500).json({ error: 'Failed to delete aide. Please try again later.' });
   }
 };

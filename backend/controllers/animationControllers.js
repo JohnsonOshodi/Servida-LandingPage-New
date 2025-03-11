@@ -3,12 +3,14 @@ const Animation = require('../models/animationModels');
 // Get all animations
 exports.getAllAnimations = async (req, res, next) => {
   try {
-    // Fetch all animations from the database
     const animations = await Animation.find();
-    // Respond with a 200 status and all animations in JSON format
-    res.status(200).json(animations);
+    res.status(200).json({
+      message: 'Animations retrieved successfully',
+      count: animations.length,
+      animations,
+    });
   } catch (error) {
-    // If an error occurs, pass it to the error handler middleware
+    console.error('Error fetching animations:', error);
     next(error);
   }
 };
@@ -16,21 +18,16 @@ exports.getAllAnimations = async (req, res, next) => {
 // Get animation by device type
 exports.getAnimationByDevice = async (req, res, next) => {
   try {
-    // Extract the deviceType from the route parameter
     const { deviceType } = req.params;
-
-    // Fetch the animation for the specific deviceType
     const animation = await Animation.findOne({ deviceType });
 
-    // If no animation is found for the given deviceType, return a 404 status
     if (!animation) {
       return res.status(404).json({ error: 'Animation not found' });
     }
 
-    // Respond with a 200 status and the found animation
     res.status(200).json(animation);
   } catch (error) {
-    // If an error occurs, pass it to the error handler middleware
+    console.error('Error fetching animation:', error);
     next(error);
   }
 };
@@ -38,23 +35,22 @@ exports.getAnimationByDevice = async (req, res, next) => {
 // Add a new animation
 exports.addAnimation = async (req, res, next) => {
   try {
-    // Extract necessary data from the request body
     const { deviceType, assetPath, animationEffect } = req.body;
 
-    // Create a new animation document
-    const newAnimation = new Animation({
-      deviceType,
-      assetPath,
-      animationEffect
-    });
+    // Validate required fields
+    if (!deviceType || !assetPath || !animationEffect) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
 
-    // Save the new animation to the database
+    const newAnimation = new Animation({ deviceType, assetPath, animationEffect });
     await newAnimation.save();
 
-    // Respond with a 201 status and the new animation details
-    res.status(201).json(newAnimation);
+    res.status(201).json({
+      message: 'Animation added successfully',
+      animation: newAnimation,
+    });
   } catch (error) {
-    // If an error occurs, pass it to the error handler middleware
+    console.error('Error adding animation:', error);
     next(error);
   }
 };

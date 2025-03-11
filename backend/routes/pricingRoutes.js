@@ -1,11 +1,15 @@
 const express = require('express');
-const { getPricingDetails, calculateEstimate, getTotalPrice } = require('../controllers/pricingController'); // Import all functions from 'pricingController'
+const { getPricingDetails, calculateEstimate, getTotalPrice } = require('../controllers/pricingController');
 
 const router = express.Router();
 
-// Routes
-router.get('/', getPricingDetails); // Fetch pricing details
-router.post('/estimate', calculateEstimate); // Calculate an estimate based on input
-router.get('/total-price', getTotalPrice); // Fetch total price based on serviceType, frequency, etc.
+// Fetch pricing details
+router.get('/', getPricingDetails);
+
+// Calculate an estimate based on input
+router.post('/estimate', calculateEstimate);
+
+// Fetch total price based on serviceType, frequency, etc.
+router.get('/total-price', getTotalPrice);
 
 module.exports = router;

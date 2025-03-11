@@ -1,4 +1,4 @@
-const HowDidYouHear = require('../models/howDidYouHearModel');
+const HowDidYouHear = require("../models/howDidYouHear");
 
 // Save user response
 const saveResponse = async (req, res) => {
@@ -6,13 +6,13 @@ const saveResponse = async (req, res) => {
     const { method, totalPrice } = req.body;
 
     if (!method || !totalPrice) {
-      return res.status(400).json({ message: 'All fields are required.' });
+      return res.status(400).json({ message: "All fields are required." });
     }
 
     const newResponse = await HowDidYouHear.create({ method, totalPrice });
 
     res.status(201).json({
-      message: 'Response saved successfully',
+      message: "Response saved successfully",
       data: newResponse,
     });
   } catch (error) {

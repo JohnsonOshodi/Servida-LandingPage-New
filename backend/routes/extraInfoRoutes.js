@@ -1,8 +1,8 @@
-const express = require('express');
-const { submitExtraInfo } = require('../controllers/extraInfoController');
+const express = require("express");
+const { submitExtraInfo } = require("../controllers/formController");
+
 const router = express.Router();
 
-// Route to handle form submission
-router.post('/extra-info', submitExtraInfo);
+router.post("/", submitExtraInfo);
 
 module.exports = router;

@@ -2,49 +2,17 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/env.config');
 const User = require('../models/user');
 
-// Protect middleware
-exports.protect = async (req, res, next) => {
-  let token;
-
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user = await User.findById(decoded.id).select('-password');
-      next();
-    } catch (error) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
-    }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
-  }
-};
-
-// Admin check middleware
-exports.isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    res.status(403).json({ message: 'Not authorized as an admin' });
-  }
-};
-
 // Middleware to verify JWT tokens for authentication
-const protect = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1]; // Bearer <token>
+const protect = async (req, res, next) => {
+  let token = req.headers.authorization?.split(' ')[1]; // Bearer <token>
+
   if (!token) {
     return res.status(401).json({ message: 'Access denied. No token provided.' });
   }
 
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);
-    req.user = decoded; // Attach user info to the request
+    req.user = await User.findById(decoded.id).select('-password'); // Attach user info to request
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired token.' });
@@ -57,6 +25,15 @@ const isAdmin = (req, res, next) => {
     return res.status(403).json({ message: 'Access denied. Admins only.' });
   }
   next();
+};
+// Define AuthorizeRole
+const authorizeRole = (roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    next();
+  };
 };
 
 // Middleware to check aide role
@@ -80,4 +57,5 @@ module.exports = {
   isAdmin,
   isAide,
   isClient,
+  authorizeRole,  
 };

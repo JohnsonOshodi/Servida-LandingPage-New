@@ -1,114 +1,69 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useBookingStore } from '@/store/BookCleaningStore';
 
 const CleaningPlan = ({ formData, setFormData }) => {
-  const {
-    selectedTier,
-    frequency,
-    setTier,
-    setFrequency,
-    getTotalPrice
-  } = useBookingStore();
+  const { selectedTier, frequency, setTier, setFrequency, getTotalPrice } = useBookingStore();
+  const [arrivalTime, setArrivalTime] = useState('');
+  const [error, setError] = useState('');
 
-  // Sync form data with store
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
       cleaningPlan: selectedTier,
-      cleaningFrequency: frequency
+      cleaningFrequency: frequency,
+      arrivalTime,
     }));
-  }, [selectedTier, frequency, setFormData]);
+  }, [selectedTier, frequency, arrivalTime, setFormData]);
 
-  const handlePlanChange = (e) => {
-    const value = e.target.value;
-    setTier(value === 'basic-cleaning' ? 'basic' : 'deep');
-  };
+  const handleSubmit = async () => {
+    if (!formData.cleaningPlan || !formData.cleaningFrequency || !formData.startDate || !arrivalTime) {
+      setError('All fields are required.');
+      return;
+    }
+    setError('');
 
-  const handleFrequencyChange = (e) => {
-    const value = e.target.value;
-    const frequencyMap = {
-      weekly: 'onceAWeek',
-      biweekly: 'twiceAWeek',
-      monthly: 'everyday'
-    };
-    setFrequency(frequencyMap[value] || 'onceOff');
+    try {
+      const response = await axios.post('http://localhost:5000/api/forms/cleaning-plan-submit', {
+        ...formData,
+        arrivalTime,
+        totalPrice: getTotalPrice(),
+      });
+      console.log('Success:', response.data);
+    } catch (error) {
+      console.error('Submission error:', error.response?.data || error.message);
+      setError('Failed to submit. Try again.');
+    }
   };
 
   return (
-    <form className="flex flex-col items-center justify-center space-y-[2rem]">
-      <div className="w-[50rem]">
-        <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-          What plan are you paying for:
-        </label>
-        <select
-          name="cleaningPlan"
-          value={selectedTier === 'basic' ? 'basic-cleaning' : 'deep-cleaning'}
-          onChange={handlePlanChange}
-          className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
-        >
-          <option value="">Select an option</option>
-          <option value="basic-cleaning">Basic Cleaning</option>
-          <option value="deep-cleaning">Deep Cleaning</option>
-        </select>
-      </div>
-
-      <div className="w-[50rem]">
-        <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-          Cleaning frequency:
-        </label>
-        <select
-          name="cleaningFrequency"
-          value={Object.entries({
-            onceAWeek: 'weekly',
-            twiceAWeek: 'biweekly',
-            everyday: 'monthly'
-          }).find(([key]) => key === frequency)?.[1] || ''}
-          onChange={handleFrequencyChange}
-          className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
-        >
-          <option value="">Select an option</option>
-          <option value="weekly">Weekly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-      </div>
-
-      <div className="w-[50rem]">
-        <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-          Preferred date to begin:
-        </label>
-        <input
-          type="date"
-          name="startDate"
-          value={formData.startDate || ''}
-          onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-          className="w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm bg-sageMidWhite text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue"
-        />
-      </div>
-
-      <div className="w-[50rem]">
-        <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-          Preferred time for cleaner to start each time
-        </label>
-        <select
-          name="cleaningPlan"
-          // value={selectedTier === 'basic' ? 'basic-cleaning' : 'deep-cleaning'}
-          // onChange={handlePlanChange}
-          className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
-        >
-          <option value="">Select an option</option>
-          <option value="basic-cleaning">Morning</option>
-          <option value="deep-cleaning">Afternoon</option>
-          <option value="deep-cleaning">Evening</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col items-center gap-[1rem] justify-center mt-3">
-        <span className="font-semibold text-[1.4rem]">Cost</span>
-        <span className="font-bold text-[3.6rem] text-sageFormBlue">
-          ₦{getTotalPrice().toLocaleString()}
-        </span>
-      </div>
+    <form className="space-y-6">
+      <label>Cleaning Plan:</label>
+      <select onChange={e => setTier(e.target.value)} value={selectedTier}>
+        <option value="basic">Basic Cleaning</option>
+        <option value="deep">Deep Cleaning</option>
+      </select>
+      
+      <label>Cleaning Frequency:</label>
+      <select onChange={e => setFrequency(e.target.value)} value={frequency}>
+        <option value="onceAWeek">Weekly</option>
+        <option value="twiceAWeek">Bi-weekly</option>
+        <option value="everyday">Monthly</option>
+      </select>
+      
+      <label>Start Date:</label>
+      <input type="date" onChange={e => setFormData({ ...formData, startDate: e.target.value })} value={formData.startDate || ''} />
+      
+      <label>Preferred Time:</label>
+      <select onChange={e => setArrivalTime(e.target.value)} value={arrivalTime}>
+        <option value="">Select a time</option>
+        <option value="morning">Morning</option>
+        <option value="afternoon">Afternoon</option>
+        <option value="evening">Evening</option>
+      </select>
+      
+      {error && <p className="text-red-500">{error}</p>}
+      <button type="button" onClick={handleSubmit}>Submit</button>
     </form>
   );
 };

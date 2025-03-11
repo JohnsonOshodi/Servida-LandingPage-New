@@ -1,15 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, adminLogin } = require('../controllers/authController');
+const { 
+  createOrder, 
+  getOrders, 
+  getOrderById, 
+  updateOrder, 
+  deleteOrder 
+} = require('../controllers/orderController');
 const { protect, isAdmin } = require('../middleware/authMiddleware');
 
-// User Registration
-router.post('/register', register);
+// Create a new order (protected)
+router.post('/create', protect, createOrder);
 
-// User Login
-router.post('/login', login);
+// Get all orders (protected and admin-only)
+router.get('/', protect, isAdmin, getOrders);
 
-// Admin Login
-router.post('/admin-login', adminLogin);
+// Get an order by ID (protected)
+router.get('/:id', protect, getOrderById);
+
+// Update an order (protected and admin-only)
+router.put('/:id', protect, isAdmin, updateOrder);
+
+// Delete an order (protected and admin-only)
+router.delete('/:id', protect, isAdmin, deleteOrder);
 
 module.exports = router;

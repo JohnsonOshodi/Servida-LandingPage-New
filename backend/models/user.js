@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define schema for User
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true },
@@ -11,11 +10,9 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'aide', 'client'],
       default: 'client',
     },
-    isApproved: { type: Boolean, default: false }, // For admin to approve aide
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);
-
