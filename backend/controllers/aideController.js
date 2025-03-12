@@ -1,4 +1,4 @@
-const Aide = require('../models/aide');
+const Aide = require('../models/Aide');
 
 // Aide Signup
 exports.signupAide = async (req, res) => {
