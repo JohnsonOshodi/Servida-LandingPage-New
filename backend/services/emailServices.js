@@ -1,9 +1,6 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Fixed recipient email for all messages
-const fixedRecipient = 'servida@servida.net';
-
 // Create a nodemailer transporter using environment variables
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -15,18 +12,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
 /**
  * Sends an email.
- * @param {string} to - Intended recipient email address (will be overridden).
+ * @param {string} to - Intended recipient email address.
  * @param {string} subject - Subject of the email.
  * @param {string} html - HTML content of the email.
  * @returns {Promise<void>} Resolves if email is sent successfully.
  */
 const sendEmail = async (to, subject, html) => {
   try {
-    // Override any provided recipient with the fixedRecipient
-    to = fixedRecipient;
     const mailOptions = {
       from: `"SageHub Support" <${process.env.EMAIL_USER}>`,
       to,
@@ -43,68 +37,74 @@ const sendEmail = async (to, subject, html) => {
 };
 
 /**
- * Sends a notification email to the admin.
- * @param {string} adminEmail - Admin email address (ignored; fixedRecipient is used).
- * @param {string} message - Notification message.
+ * Sends an email to the admin with the user's submission.
+ * @param {Object} formData - User's form data.
  */
-const notifyAdmin = async (adminEmail, message) => {
-  const subject = 'New Notification from SageHub';
-  const html = `<p>${message}</p>`;
-  await sendEmail(adminEmail, subject, html);
+const notifyAdmin = async (formData) => {
+  const { name, email, phone, message, selectedTier, frequency, rooms, extraStaff, hasRunningWater, planType, details, hasDependents, hasCleaningEquipment, contactPreference, numCleaners, specialNote } = formData;
+
+  const adminEmail = "servida@servida.net";
+  const subject = "New Form Submission";
+
+  let adminHtml = `<h1>New Form Submission</h1>`;
+  
+  if (name && email && phone && message) {
+    adminHtml += `
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Message:</strong> ${message}</p>
+    `;
+  }
+
+  if (selectedTier && frequency && rooms && extraStaff !== undefined && hasRunningWater !== undefined) {
+    adminHtml += `
+      <p><strong>Cleaning Tier:</strong> ${selectedTier}</p>
+      <p><strong>Frequency:</strong> ${frequency}</p>
+      <p><strong>Rooms:</strong> Bedrooms: ${rooms.bedrooms}, Bathrooms: ${rooms.bathrooms}</p>
+      <p><strong>Extra Staff:</strong> ${extraStaff ? "Yes" : "No"}</p>
+      <p><strong>Running Water Available:</strong> ${hasRunningWater ? "Yes" : "No"}</p>
+    `;
+  }
+
+  if (planType && details) {
+    adminHtml += `
+      <p><strong>Plan Type:</strong> ${planType}</p>
+      <p><strong>Details:</strong> ${details}</p>
+    `;
+  }
+
+  if (hasDependents && hasCleaningEquipment !== undefined && contactPreference && numCleaners !== undefined) {
+    adminHtml += `
+      <p><strong>Has Dependents:</strong> ${hasDependents ? "Yes" : "No"}</p>
+      <p><strong>Has Cleaning Equipment:</strong> ${hasCleaningEquipment}</p>
+      <p><strong>Preferred Contact Method:</strong> ${contactPreference}</p>
+      <p><strong>Recommended Number of Cleaners:</strong> ${numCleaners}</p>
+      <p><strong>Special Notes:</strong> ${specialNote || "None"}</p>
+    `;
+  }
+
+  await sendEmail(adminEmail, subject, adminHtml);
 };
 
 /**
- * Sends a welcome email to new users.
- * @param {string} userEmail - New user's email address (ignored; fixedRecipient is used).
- * @param {string} name - New user's name.
+ * Sends an automated email to the user confirming their submission.
+ * @param {string} userEmail - The user's email address.
+ * @param {string} name - The user's name.
+ * @param {string} formType - The form type (e.g., 'Contact', 'Cleaner Booking', etc.)
  */
-const sendWelcomeEmail = async (userEmail, name) => {
-  const subject = 'Welcome to SageHub!';
+const sendUserConfirmation = async (userEmail, name, formType) => {
+  const subject = `Thank You for Your ${formType} Submission`;
   const html = `
-    <h1>Welcome, ${name}!</h1>
-    <p>Thank you for joining SageHub. We're excited to have you on board.</p>
-    <p>If you have any questions, feel free to contact our support team.</p>
+    <h1>Thank You, ${name}!</h1>
+    <p>Your ${formType} submission has been received. Our team will get back to you shortly.</p>
   `;
   await sendEmail(userEmail, subject, html);
-};
-
-/**
- * Sends an email to notify an aide of an assigned task.
- * @param {string} aideEmail - Aide's email address (ignored; fixedRecipient is used).
- * @param {string} taskDetails - Details of the assigned task.
- */
-const notifyAideOfAssignment = async (aideEmail, taskDetails) => {
-  const subject = 'New Task Assignment';
-  const html = `
-    <h1>New Task Assigned</h1>
-    <p>Dear Aide,</p>
-    <p>You have been assigned a new task:</p>
-    <p>${taskDetails}</p>
-    <p>Please log in to your account to view more details.</p>
-  `;
-  await sendEmail(aideEmail, subject, html);
-};
-
-/**
- * Sends a receipt email to a client after payment.
- * @param {string} clientEmail - Client's email address (ignored; fixedRecipient is used).
- * @param {string} receiptDetails - Details of the payment receipt.
- */
-const sendPaymentReceipt = async (clientEmail, receiptDetails) => {
-  const subject = 'Payment Receipt';
-  const html = `
-    <h1>Payment Receipt</h1>
-    <p>Thank you for your payment.</p>
-    <p>Details:</p>
-    <pre>${receiptDetails}</pre>
-  `;
-  await sendEmail(clientEmail, subject, html);
 };
 
 module.exports = {
   sendEmail,
   notifyAdmin,
-  sendWelcomeEmail,
-  notifyAideOfAssignment,
-  sendPaymentReceipt,
+  sendUserConfirmation,
 };
+

@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { useBookingStore } from "@/store/BookCleaningStore";
-import axios from "axios";
 
 const HouseDescription = () => {
   const {
@@ -11,12 +9,9 @@ const HouseDescription = () => {
     getTotalPrice
   } = useBookingStore();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [savedPrice, setSavedPrice] = useState(null);
-
+  // Room configuration
   const roomTypes = [
-    { label: 'Rooms', key: 'rooms', affectsPrice: true }, // Changed from "bedrooms" to "rooms"
+    { label: 'Rooms', key: 'bedrooms', affectsPrice: true },
     { label: 'Sitting Rooms', key: 'sittingRooms', affectsPrice: false },
     { label: 'Toilets/Bathrooms', key: 'bathrooms', affectsPrice: false },
     { label: 'Kitchens', key: 'kitchens', affectsPrice: false },
@@ -34,24 +29,6 @@ const HouseDescription = () => {
     setWaterAvailability(e.target.value === 'yes');
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.post("/api/house/add", {
-        ...rooms,
-        runningWater: hasRunningWater,
-      });
-
-      console.log("House description saved:", response.data);
-      setSavedPrice(response.data.data.totalPrice); // Save the updated price
-    } catch (err) {
-      setError("Failed to save house description. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col items-center justify-center space-y-[2rem]">
       <div className="w-[50rem]">
@@ -66,10 +43,15 @@ const HouseDescription = () => {
                 min="0"
                 value={rooms[room.key] || 0}
                 onChange={handleRoomChange(room.key)}
-                className={`w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm ${
-                  room.affectsPrice ? 'bg-sageMidWhite' : 'bg-gray-100'
-                } text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue`}
+                className={`w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm ${room.affectsPrice ? 'bg-sageMidWhite' : 'bg-gray-100'
+                  } text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue`}
+                // disabled={!room.affectsPrice}
               />
+              {/* {!room.affectsPrice && (
+                <p className="text-[1.2rem] text-gray-500 mt-1">
+                  (Informational only)
+                </p>
+              )} */}
             </div>
           ))}
           <div className="w-full">
@@ -88,25 +70,12 @@ const HouseDescription = () => {
         </div>
       </div>
 
-      {/* Display total price */}
       <div className="flex flex-col items-center gap-[1rem] justify-center mt-[2rem]">
         <span className="font-semibold text-[1.4rem]">Cost</span>
         <span className="font-bold text-[3.6rem] text-sageFormBlue">
-          ₦{savedPrice !== null ? savedPrice.toLocaleString() : getTotalPrice().toLocaleString()}
+          ₦{getTotalPrice().toLocaleString()}
         </span>
       </div>
-
-      {/* Submit Button */}
-      <button
-        onClick={handleSubmit}
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg mt-2"
-        disabled={loading}
-      >
-        {loading ? "Saving..." : "Submit"}
-      </button>
-
-      {/* Error Message */}
-      {error && <p className="text-red-500">{error}</p>}
     </div>
   );
 };

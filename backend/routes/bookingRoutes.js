@@ -1,44 +1,46 @@
-const express = require('express');
-const Booking = require('../models/booking');
+const express = require("express");
+const Form = require("../models/form"); 
 const router = express.Router();
 
 // POST: Create a new booking
-router.post('/create', async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
     const {
+      name,
+      phone,
+      email,
       selectedTier,
       frequency,
       rooms,
       extraStaff,
       hasRunningWater,
       totalPrice,
+      hasDependents,
+      hasCleaningEquipment,
+      contactPreference,
     } = req.body;
 
-    const newBooking = new Booking({
+    // Create a new booking
+    const newBooking = new Form({
+      name,
+      phone,
+      email,
       selectedTier,
       frequency,
       rooms,
       extraStaff,
       hasRunningWater,
       totalPrice,
+      hasDependents,
+      hasCleaningEquipment,
+      contactPreference,
     });
 
     await newBooking.save();
-    res.status(201).json({ message: 'Booking created successfully', newBooking });
+    res.status(201).json({ success: true, message: "Booking created successfully", newBooking });
   } catch (error) {
-    console.error('Error creating booking:', error);
-    res.status(500).json({ error: 'Failed to create booking' });
-  }
-});
-
-// GET: Fetch all bookings
-router.get('/', async (req, res) => {
-  try {
-    const bookings = await Booking.find();
-    res.status(200).json(bookings);
-  } catch (error) {
-    console.error('Error fetching bookings:', error);
-    res.status(500).json({ error: 'Failed to fetch bookings' });
+    console.error("Error creating booking:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

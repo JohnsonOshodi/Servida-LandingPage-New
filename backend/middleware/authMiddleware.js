@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config/env.config');
 const User = require('../models/user');
 
 // Middleware to verify JWT tokens for authentication
@@ -11,51 +10,36 @@ const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, config.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select('-password'); // Attach user info to request
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use .env JWT_SECRET
+    req.user = await User.findById(decoded.userId).select('-password'); // Attach user info to request
+    if (!req.user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired token.' });
   }
 };
 
-// Middleware to check admin role
-const isAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Access denied. Admins only.' });
-  }
-  next();
-};
-// Define AuthorizeRole
+// Middleware to check user roles
 const authorizeRole = (roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied" });
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied' });
     }
     next();
   };
 };
 
-// Middleware to check aide role
-const isAide = (req, res, next) => {
-  if (!req.user || req.user.role !== 'aide') {
-    return res.status(403).json({ message: 'Access denied. Aides only.' });
-  }
-  next();
-};
-
-// Middleware to check client role
-const isClient = (req, res, next) => {
-  if (!req.user || req.user.role !== 'client') {
-    return res.status(403).json({ message: 'Access denied. Clients only.' });
-  }
-  next();
-};
+// Specific role-based access middlewares
+const isAdmin = authorizeRole(['admin']);
+const isAide = authorizeRole(['aide']);
+const isClient = authorizeRole(['client']);
 
 module.exports = {
   protect,
   isAdmin,
   isAide,
   isClient,
-  authorizeRole,  
+  authorizeRole,
 };

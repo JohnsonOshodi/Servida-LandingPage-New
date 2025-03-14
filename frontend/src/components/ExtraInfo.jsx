@@ -1,17 +1,18 @@
-import { useBookingStore } from "@/store/BookCleaningStore";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useBookingStore } from '@/store/BookCleaningStore';
+import { useEffect } from 'react';
 
 const ExtraInfo = ({ formData, setFormData }) => {
-  const { extraStaff, setExtraStaff, getTotalPrice } = useBookingStore();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const {
+    extraStaff,
+    setExtraStaff,
+    getTotalPrice
+  } = useBookingStore();
 
+  // Sync form data with store
   useEffect(() => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      extraStaff,
+      extraStaff
     }));
   }, [extraStaff, setFormData]);
 
@@ -20,122 +21,108 @@ const ExtraInfo = ({ formData, setFormData }) => {
     setExtraStaff(value);
   };
 
-  // Function to submit form data to backend
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/extra-info", {
-        email: formData.email, // Include email in the request
-        hasDependents: formData.hasDependents,
-        hasCleaningEquipment: formData.hasCleaningEquipment,
-        contactPreference: formData.contactPreference,
-        numCleaners: extraStaff,
-        specialNote: formData.specialNote,
-      });
-
-      setSuccess("Form submitted successfully!");
-      console.log("Response:", response.data);
-    } catch (err) {
-      setError("Failed to submit. Please try again.");
-      console.error("Error submitting form:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex items-center flex-col justify-center">
-      <form className="flex flex-col items-center justify-center space-y-4 mt-6" onSubmit={handleSubmit}>
-        <div className="flex items-center justify-center gap-16">
-          <span className="text-lg font-semibold">
-            Do you have kids, dependents, or elderly around?
+    
+      <div className="flex items-center justify-center gap-[4rem]">
+        <span className="text-[1.4rem] font-semibold">
+          Do you have kids, dependents, or elderly around?
+        </span>
+        <label htmlFor="toggle" className="flex items-center cursor-pointer">
+          <div className="relative">
+            <input
+              type="checkbox"
+              id="toggle"
+              className="sr-only peer"
+              checked={formData.hasDependents || false}
+              onChange={(e) => setFormData({ ...formData, hasDependents: e.target.checked })}
+            />
+            <div
+              className={`block bg-gray-600 w-[5rem] h-[2.5rem] rounded-full transition duration-300 ${
+                formData.hasDependents ? 'bg-sageDarkBlue' : ''
+              }`}
+            ></div>
+            <div
+              className={`dot absolute left-1 top-1 bg-white w-[2.1rem] h-[2.1rem] rounded-full transition-transform duration-300 ${
+                formData.hasDependents ? 'translate-x-[2.5rem]' : ''
+              }`}
+            ></div>
+          </div>
+          <span className="text-[1.2rem] ml-4">
+            {formData.hasDependents ? 'Yes' : 'No'}
           </span>
-          <label htmlFor="toggle" className="flex items-center cursor-pointer">
-            <div className="relative">
-              <input
-                type="checkbox"
-                id="toggle"
-                className="sr-only peer"
-                checked={formData.hasDependents || false}
-                onChange={(e) => setFormData({ ...formData, hasDependents: e.target.checked })}
-              />
-              <div className={`block w-20 h-10 rounded-full transition duration-300 ${formData.hasDependents ? "bg-blue-600" : "bg-gray-600"}`}></div>
-              <div className={`dot absolute left-1 top-1 bg-white w-8 h-8 rounded-full transition-transform duration-300 ${formData.hasDependents ? "translate-x-10" : ""}`}></div>
-            </div>
-            <span className="text-lg ml-4">{formData.hasDependents ? "Yes" : "No"}</span>
-          </label>
-        </div>
+        </label>
+      </div>
 
-        <div className="w-96">
-          <label className="text-lg font-semibold block mb-2">Do you have equipment for cleaning?</label>
+      <form className="flex flex-col items-center justify-center space-y-[1rem] mt-[2rem]">
+        <div className="w-[50rem]">
+          <label className="text-[1.4rem] font-semibold block mb-[1rem]">
+            Do you have equipment for cleaning?
+          </label>
           <select
             name="hasCleaningEquipment"
-            value={formData.hasCleaningEquipment || ""}
+            value={formData.hasCleaningEquipment || ''}
             onChange={(e) => setFormData({ ...formData, hasCleaningEquipment: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg bg-white text-lg focus:ring-1 focus:ring-blue-600 h-12"
+            className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
           >
             <option value="">--select--</option>
             <option value="Yes">Yes</option>
             <option value="No">No</option>
           </select>
         </div>
-
-        <div className="w-96">
-          <label className="text-lg font-semibold block mb-2">How would you like us to reach you?</label>
+        
+        <div className="w-[50rem]">
+          <label className="text-[1.4rem] font-semibold block mb-[.5rem]">
+            How would you like us to reach you?
+          </label>
           <select
             name="contactPreference"
-            value={formData.contactPreference || ""}
+            value={formData.contactPreference || ''}
             onChange={(e) => setFormData({ ...formData, contactPreference: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg bg-white text-lg focus:ring-1 focus:ring-blue-600 h-12"
+            className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
           >
             <option value="">--select--</option>
             <option value="Phone">Phone</option>
             <option value="Email">Email</option>
           </select>
         </div>
-
-        <div className="w-96">
-          <label className="text-lg font-semibold block mb-2">How many cleaners would you recommend for the job?</label>
+        
+        <div className="w-[50rem]">
+          <label className="text-[1.4rem] font-semibold block mb-[.5rem]">
+            How many cleaners would you recommend for the job?
+          </label>
           <input
             type="number"
             name="numCleaners"
             min="0"
             value={extraStaff}
             onChange={handleStaffChange}
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-lg focus:ring-1 focus:ring-blue-600 h-12"
+            className="w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm bg-sageMidWhite text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue"
           />
         </div>
-
-        <div className="w-96">
-          <label className="text-lg font-semibold block mb-2">Special notes to take into consideration:</label>
+        
+        <div className="w-[50rem]">
+          <label className="text-[1.4rem] font-semibold block mb-[.5rem]">
+            Special notes to take into consideration:
+          </label>
           <input
             type="text"
             name="specialNote"
-            value={formData.specialNote || ""}
+            value={formData.specialNote || ''}
             onChange={(e) => setFormData({ ...formData, specialNote: e.target.value })}
-            className="w-full px-3 py-2 border rounded-lg bg-gray-100 text-lg focus:ring-1 focus:ring-blue-600 h-12"
+            className="w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm bg-sageMidWhite text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue"
           />
         </div>
-
-        <div className="flex flex-col items-center gap-2 mt-3">
-          <span className="font-semibold text-lg">Cost</span>
-          <span className="font-bold text-3xl text-blue-600">₦{getTotalPrice().toLocaleString()}</span>
+        
+        <div className="flex flex-col items-center gap-[1rem] justify-center mt-3">
+          <span className="font-semibold text-[1.4rem]">Cost</span>
+          <span className="font-bold text-[3.6rem] text-sageFormBlue">
+            ₦{getTotalPrice().toLocaleString()}
+          </span>
         </div>
-
-        <button type="submit" className="bg-blue-600 text-white px-6 py-3 rounded-md mt-4" disabled={loading}>
-          {loading ? "Submitting..." : "Submit"}
-        </button>
-
-        {success && <p className="text-green-500">{success}</p>}
-        {error && <p className="text-red-500">{error}</p>}
       </form>
     </div>
   );
 };
 
 export default ExtraInfo;
-

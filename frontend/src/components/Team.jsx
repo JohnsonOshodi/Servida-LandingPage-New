@@ -1,24 +1,21 @@
-import { useEffect, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa6';
 
-const Team = () => {
-  const [team, setTeam] = useState([]);
-
-  useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/team');
-        const data = await response.json();
-        setTeam(data);
-      } catch (error) {
-        console.error('Error fetching team data:', error);
-      }
-    };
-    fetchTeam();
-  }, []);
+const Carousel = () => {
+  const images = [
+    { photo: '/assets/images/bowo.png', name: 'Oyedele Bowofoluwa', position: 'Designer' },
+    { photo: '/assets/images/chidi.png', name: 'Achukwu Chidi', position: 'CMO/Co-Founder' },
+    { photo: '/assets/images/daniel.png', name: 'Daniel Gbuji', position: 'Backend Engineer' },
+    { photo: '/assets/images/martin.png', name: 'Martins Ifeanyi', position: 'Frontend Developer' },
+    {
+      photo: '/assets/images/pelumi.png',
+      name: 'Akande Oluwapelumi',
+      position: 'Secretary/Product Marketer',
+    },
+    { photo: '/assets/images/praise.png', name: 'Praise Echem', position: 'CEO/Co-Founder' },
+  ];
 
   const settings = {
     dots: false,
@@ -33,27 +30,27 @@ const Team = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-sageOffWhite via-sageLightBlue to-sageLowBlue pt-20 pb-20">
+    <div className="bg-gradient-to-b from-sageOffWhite via-sageLightBlue to-sageLowBlue pt-20 pb-20 ">
       <h1 className="text-sageBlack font-aftika text-center font-bold text-[4.8rem] sm:text-4xl md:text-5xl mb-10">
         Our Team
       </h1>
       <div className="w-11/12 sm:w-10/12 md:w-8/12 lg:w-1/2 mx-auto">
         <Slider {...settings}>
-          {team.map((member, index) => (
+          {images.map((img, index) => (
             <div key={index} className="text-center">
               <div className="flex justify-center mb-5">
                 <img
-                  src={member.photo}
-                  alt={member.name}
+                  src={img.photo}
+                  alt={img.name}
                   className="w-3/4 sm:w-2/3 md:w-1/2 h-auto rounded-lg"
                 />
               </div>
               <div>
                 <p className="text-2xl lg:text-4xl sm:text-xl md:text-[2.4rem] font-semibold mb-2 text-sageBlack font-aftika">
-                  {member.name}
+                  {img.name}
                 </p>
                 <p className="text-lg sm:text-base md:text-[1.6rem] text-gray-700 font-aftika">
-                  {member.position}
+                  {img.position}
                 </p>
               </div>
             </div>
@@ -65,21 +62,24 @@ const Team = () => {
 };
 
 const NextArrow = ({ onClick }) => (
-  <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-10 cursor-pointer" onClick={onClick}>
+  <div
+    className="absolute top-1/2 right-4 transform -translate-y-1/2 z-10 cursor-pointer"
+    onClick={onClick}
+  >
     <FaArrowRight className="text-sageDarkBlue text-xl sm:text-2xl" />
   </div>
 );
 
 const PrevArrow = ({ onClick }) => (
-  <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-10 cursor-pointer" onClick={onClick}>
+  <div
+    className="absolute top-1/2 left-4 transform -translate-y-1/2 z-10 cursor-pointer"
+    onClick={onClick}
+  >
     <FaArrowLeft className="text-sageDarkBlue text-xl sm:text-2xl" />
   </div>
 );
 
-export default Team;
-
-
-
+export default Carousel;
 
 // //import React from "react";
 // import 'slick-carousel/slick/slick.css';

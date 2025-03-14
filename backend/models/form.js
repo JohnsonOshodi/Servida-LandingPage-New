@@ -5,33 +5,33 @@ const formSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
-    
+
     // Cleaner Form Data
     selectedTier: { type: String, enum: ['basic', 'deep'], required: true },
     frequency: { type: String, enum: ['onceAWeek', 'twiceAWeek', 'everyday'], required: true },
     rooms: {
       bedrooms: { type: Number, required: true },
+      bathrooms: { type: Number, required: true },
+      kitchens: { type: Number, required: true },
+      livingRooms: { type: Number, default: 0 },
     },
     extraStaff: { type: Number, default: 0 },
     hasRunningWater: { type: Boolean, required: true },
 
     // Cleaning Plan Data
-    cleaningPlan: { type: String, enum: ['basic', 'deep'] },
-    cleaningFrequency: { type: String, enum: ['onceAWeek', 'twiceAWeek', 'everyday'] },
-    startDate: { type: Date },
-    arrivalTime: { type: String, enum: ['morning', 'afternoon', 'evening'] },
+    selectedPlan: { type: String, enum: ['Basic', 'Deep'], required: true },
+    frequency: { type: String, enum: ['onceAWeek', 'twiceAWeek', 'monthly'], required: true },
+    startDate: { type: Date, required: true },
+    totalPrice: { type: Number, required: true },
 
     // Extra Info Data
-    hasDependents: { type: Boolean },
+    hasDependents: { type: Boolean, default: false },
     hasCleaningEquipment: { type: String, enum: ['Yes', 'No'] },
-    contactPreference: { type: String, enum: ['Phone', 'Email'] },
-    numCleaners: { type: Number, default: 1 },
-    specialNote: { type: String },
-
-    totalPrice: { type: Number, required: true },
+    contactPreference: { type: String, enum: ['Phone', 'Email'], required: true },
   },
   { timestamps: true }
 );
 
 const Form = mongoose.model('Form', formSchema);
 module.exports = Form;
+

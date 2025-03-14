@@ -11,14 +11,17 @@ const {
   approveAide 
 } = userController;
 
-const { protect, authorizeRole } = require("../middleware/authMiddleware"); // Fixed 'authenticateUser' to 'protect'
+const { protect, authorizeRole } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// Public Routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+
+// Protected Routes (Require Authentication)
 router.get("/users", protect, authorizeRole(["admin"]), getAllUsers);
-router.get("/users/:userId", protect, authorizeRole(["admin"]), getUserById);
+router.get("/users/:userId", protect, getUserById);
 router.put("/users/:userId", protect, updateUser);
 router.delete("/users/:userId", protect, authorizeRole(["admin"]), deleteUser);
 router.patch("/approve-aide/:userId", protect, authorizeRole(["admin"]), approveAide);

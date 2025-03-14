@@ -1,4 +1,3 @@
-import React from 'react';
 import ImageNavBar from '../components/ImageNavBar';
 import CleanerForm from '@/components/CleanerForm';
 
@@ -12,4 +11,3 @@ const BookCleaner = () => {
 };
 
 export default BookCleaner;
-

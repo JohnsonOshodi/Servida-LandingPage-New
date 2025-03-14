@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const { sendEmail } = require("../services/emailServices");
+const { notifyAdmin, sendUserConfirmation } = require("../services/emailServices");
 
 const submitForm = asyncHandler(async (req, res) => {
   const { name, email, phone, message } = req.body;
@@ -26,8 +26,11 @@ const submitForm = asyncHandler(async (req, res) => {
     <p>Your message has been received. We will get back to you shortly.</p>
   `;
 
-  await sendEmail(adminEmail, subject, adminHtml);
-  await sendEmail(email, "Thank You for Your Submission", userHtml);
+  // Send email to admin
+  await notifyAdmin(adminEmail, adminHtml);
+  
+  // Send confirmation email to the user
+  await sendUserConfirmation(email, userHtml);
 
   res.status(200).json({ message: "Form submitted successfully!" });
 });
@@ -61,8 +64,11 @@ const submitCleanerForm = asyncHandler(async (req, res) => {
     <p>Your booking request has been received. We will contact you shortly to confirm the details.</p>
   `;
 
-  await sendEmail(adminEmail, subject, adminHtml);
-  await sendEmail(email, "Cleaner Booking Confirmation", userHtml);
+  // Send email to admin
+  await notifyAdmin(adminEmail, adminHtml);
+
+  // Send confirmation email to the user
+  await sendUserConfirmation(email, userHtml);
 
   res.status(200).json({ message: "Cleaner booking submitted successfully!" });
 });
@@ -85,8 +91,11 @@ const submitCleaningPlanForm = asyncHandler(async (req, res) => {
     <p><strong>Details:</strong> ${details}</p>
   `;
 
-  await sendEmail(adminEmail, subject, adminHtml);
-  await sendEmail(email, "Cleaning Plan Submission Confirmation", `<h1>Thank You!</h1><p>Your cleaning plan details have been received.</p>`);
+  // Send email to admin
+  await notifyAdmin(adminEmail, adminHtml);
+
+  // Send confirmation email to the user
+  await sendUserConfirmation(email, `<h1>Thank You!</h1><p>Your cleaning plan details have been received.</p>`);
 
   res.status(200).json({ message: "Cleaning plan submitted successfully!" });
 });
@@ -111,14 +120,15 @@ const submitExtraInfo = asyncHandler(async (req, res) => {
     <p><strong>Special Notes:</strong> ${specialNote || "None"}</p>
   `;
 
-  await sendEmail(adminEmail, subject, adminHtml);
+  // Send email to admin
+  await notifyAdmin(adminEmail, adminHtml);
+
+  // Send confirmation email to the user
   if (email) {
-    await sendEmail(email, "Your Extra Info Submission", `<h1>Thank You!</h1><p>Your extra info has been submitted.</p>`);
+    await sendUserConfirmation(email, `<h1>Thank You!</h1><p>Your extra info has been submitted.</p>`);
   }
 
   res.status(200).json({ message: "Extra info submitted successfully!" });
 });
 
 module.exports = { submitForm, submitCleanerForm, submitCleaningPlanForm, submitExtraInfo };
-
-
