@@ -1,17 +1,24 @@
-const { sendFormEmail } = require('./emailHandler'); // Adjust the path if needed
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-(async () => {
-  try {
-    await sendFormEmail({
-      name: "Test User",
-      email: "test@example.com",
-      phone: "123456789",
-      houseDescription: "2-bedroom apartment",
-      cleaningPlan: "Standard Cleaning",
-      extraInfo: "No special requests"
-    });
-    console.log("✅ Test email sent successfully!");
-  } catch (error) {
-    console.error("❌ Error sending test email:", error);
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: false, 
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    ciphers: "SSLv3",
+  },
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP Connection Error:", error);
+  } else {
+    console.log("✅ SMTP Connection Success! Ready to send emails.");
   }
-})();
+});
+

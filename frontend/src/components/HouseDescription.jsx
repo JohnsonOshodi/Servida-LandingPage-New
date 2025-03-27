@@ -1,72 +1,75 @@
-import { useBookingStore } from "@/store/BookCleaningStore";
+import { useEffect } from "react";
+import { useBookingStore } from "../store/BookCleaningStore";
+import { useNavigate } from "react-router-dom";
 
 const HouseDescription = () => {
   const {
-    rooms,
-    hasRunningWater,
-    updateRoom,
-    setWaterAvailability,
-    getTotalPrice
+    formData,
+    updateRooms,
+    toggleWater,
+    getTotalPrice, // ✅ Use getTotalPrice instead of calculateTotalPrice
+    setFormData,
   } = useBookingStore();
 
-  // Room configuration
+  const navigate = useNavigate();
+
   const roomTypes = [
-    { label: 'Rooms', key: 'bedrooms', affectsPrice: true },
-    { label: 'Sitting Rooms', key: 'sittingRooms', affectsPrice: false },
-    { label: 'Toilets/Bathrooms', key: 'bathrooms', affectsPrice: false },
-    { label: 'Kitchens', key: 'kitchens', affectsPrice: false },
-    { label: 'Floors', key: 'floors', affectsPrice: false },
-    { label: 'Balconies', key: 'balconies', affectsPrice: false },
-    { label: 'Stores', key: 'stores', affectsPrice: false }
+    { label: "Bedrooms", key: "bedrooms" },
+    { label: "Sitting Rooms", key: "sittingRooms" },
+    { label: "Toilets/Bathrooms", key: "bathrooms", extraCost: 5000 },
+    { label: "Kitchens", key: "kitchens", extraCost: 5000 },
+    { label: "Floors", key: "floors", extraCost: 5000 },
+    { label: "Balconies", key: "balconies", extraCost: 5000 },
+    { label: "Stores", key: "stores", extraCost: 5000 },
   ];
 
-  const handleRoomChange = (type) => (e) => {
-    const value = Math.max(0, parseInt(e.target.value, 10) || 0);
-    updateRoom(type, value);
+  const handleRoomChange = (key, extraCost) => (e) => {
+    const numericValue = Math.max(1, parseInt(e.target.value, 10) || 1);
+    updateRooms(key, numericValue, extraCost);
   };
 
   const handleWaterChange = (e) => {
-    setWaterAvailability(e.target.value === 'yes');
+    toggleWater(e.target.value === "no");
+  };
+
+  useEffect(() => {
+    getTotalPrice(); // ✅ Ensure total price updates dynamically
+  }, [formData]);
+
+  const handleNext = () => {
+    navigate("/extrainfo"); // Ensure the route is correct
   };
 
   return (
     <div className="flex flex-col items-center justify-center space-y-[2rem]">
-      <div className="w-[50rem]">
-        <div className="grid grid-cols-2 gap-[1rem]">
-          {roomTypes.map((room) => (
-            <div key={room.key}>
-              <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-                How many {room.label.toLowerCase()}:
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={rooms[room.key] || 0}
-                onChange={handleRoomChange(room.key)}
-                className={`w-full px-2 h-[5rem] border rounded-[1rem] border-sageForm ${room.affectsPrice ? 'bg-sageMidWhite' : 'bg-gray-100'
-                  } text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue`}
-                // disabled={!room.affectsPrice}
-              />
-              {/* {!room.affectsPrice && (
-                <p className="text-[1.2rem] text-gray-500 mt-1">
-                  (Informational only)
-                </p>
-              )} */}
-            </div>
-          ))}
-          <div className="w-full">
+      <div className="w-[50rem] grid grid-cols-2 gap-[1rem]">
+        {roomTypes.map(({ label, key, extraCost }) => (
+          <div key={key}>
             <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-              Do you have running water?
+              How many {label.toLowerCase()}:
             </label>
-            <select
-              value={hasRunningWater ? 'yes' : 'no'}
-              onChange={handleWaterChange}
-              className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[1rem] border-sageForm bg-transparent text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
-            >
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
+            <input
+              type="number"
+              value={formData.rooms[key] || ""}
+              onChange={handleRoomChange(key, extraCost)}
+              min="1"
+              className="border rounded px-2 py-1 w-20"
+            />
           </div>
+        ))}
+
+        <div className="w-full">
+          <label className="text-[1.4rem] font-semibold block mb-[1rem]">
+            Do you have running water?
+          </label>
+          <select
+            value={formData.hasRunningWater ? "yes" : "no"}
+            onChange={handleWaterChange}
+            className="w-full px-[1rem] py-[0.7rem] border rounded-[1rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
+          >
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
         </div>
       </div>
 
@@ -76,8 +79,20 @@ const HouseDescription = () => {
           ₦{getTotalPrice().toLocaleString()}
         </span>
       </div>
+
+      <button
+        onClick={handleNext}
+        className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition"
+      >
+        Next
+      </button>
     </div>
   );
 };
 
 export default HouseDescription;
+
+
+
+
+

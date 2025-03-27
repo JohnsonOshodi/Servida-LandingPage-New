@@ -1,9 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/connectDB');
 const errorHandler = require('./middleware/errorHandler');
-const path = require('path'); 
 
 dotenv.config();
 
@@ -17,34 +18,34 @@ connectDB()
 
 const app = express();
 const bookingRoutes = require('./routes/bookingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use('/api/book-cleaning', bookingRoutes);
+app.use('/api', bookingRoutes);
+app.use('/api/admin', adminRoutes);
 
-// HEALTHCHECK 
+// HEALTHCHECK
 app.get('/api/healthcheck', (req, res) => {
   res.json({
     status: 'Backend operational',
     db: 'Connected to MongoDB',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
-const adminRoutes = require('./routes/adminRoutes');
+// Serve static files only if the 'client' folder exists
+const clientPath = path.join(__dirname, 'client');
+if (fs.existsSync(clientPath)) {
+  app.use(express.static(clientPath));
 
-
-
-app.use('/api/admin', adminRoutes);
-
-
-app.use(express.static(path.join(__dirname, 'client')));
-
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client', 'index.html'));
-});
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientPath, 'index.html'));
+  });
+} else {
+  console.warn('⚠️ Warning: client/ folder not found. Skipping static file serving.');
+}
 
 // Global error handler
 app.use(errorHandler);

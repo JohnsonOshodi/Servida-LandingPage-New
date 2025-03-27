@@ -4,8 +4,13 @@ const { authenticateAdmin } = require('../middleware/adminMiddleware');
 
 const router = express.Router();
 
-router.post('/create', authenticateAdmin, createAdmin); // Only authenticated admins can create other admins
-router.post('/login', loginAdmin); // Public route for admin login
-router.get('/list', authenticateAdmin, getAdmins); // Only authenticated admins can view the list of admins
+// Route to create a new admin (protected)
+router.post('/', authenticateAdmin, createAdmin);
+
+// Route for admin login
+router.post('/login', loginAdmin);
+
+// Route to get a list of admins (protected)
+router.get('/', authenticateAdmin, getAdmins);
 
 module.exports = router;

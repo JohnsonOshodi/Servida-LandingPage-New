@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema({
   selectedTier: { type: String, required: true },
@@ -15,7 +15,22 @@ const bookingSchema = new mongoose.Schema({
   extraStaff: { type: Number, default: 0 },
   hasRunningWater: { type: Boolean, default: true },
   totalPrice: { type: Number, required: true },
+
+  // New fields for customer details
+  fullName: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+  cleaningPlan: { type: String, required: true },
+  extraInfo: { type: String, default: "" },
+
+  // Additional details
+  hasCleaningEquipment: { type: Boolean, default: false },
+  contactPreference: { type: String, default: "Phone" }, // Can be Phone, Email, or WhatsApp
+  heardAboutUs: { type: [String], default: [] }, // Array of sources (Google, Instagram, etc.)
+
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = mongoose.model("Booking", bookingSchema);
+

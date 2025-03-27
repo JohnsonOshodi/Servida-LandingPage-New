@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useBookingStore } from '@/store/BookCleaningStore';
+import { useBookingStore } from '../store/BookCleaningStore';
 
 const CleaningPlan = ({ formData, setFormData }) => {
   const {
@@ -10,28 +10,32 @@ const CleaningPlan = ({ formData, setFormData }) => {
     getTotalPrice
   } = useBookingStore();
 
-  // Sync form data with store
-  useEffect(() => {
+  // Sync form data with store and update price dynamically
+  useEffect(() => { 
+    const newTotalPrice = getTotalPrice(); 
+
     setFormData(prev => ({
       ...prev,
       cleaningPlan: selectedTier,
-      cleaningFrequency: frequency
+      cleaningFrequency: frequency,
+      totalPrice: newTotalPrice
     }));
-  }, [selectedTier, frequency, setFormData]);
 
-  const handlePlanChange = (e) => {
-    const value = e.target.value;
-    setTier(value === 'basic-cleaning' ? 'basic' : 'deep');
+    console.log("🛠 Updated Cleaning Plan:", selectedTier);
+    console.log("🛠 Updated Frequency:", frequency);
+    console.log("💰 Updated Total Price:", newTotalPrice);
+  }, [selectedTier, frequency]); // Removed setFormData from dependencies
+
+  const handlePlanChange = (event) => {
+    const selectedPlan = event.target.value;
+    console.log(`🎯 User Selected Plan: ${selectedPlan}`);
+    setTier(selectedPlan);  
   };
 
-  const handleFrequencyChange = (e) => {
-    const value = e.target.value;
-    const frequencyMap = {
-      weekly: 'onceAWeek',
-      biweekly: 'twiceAWeek',
-      monthly: 'everyday'
-    };
-    setFrequency(frequencyMap[value] || 'onceOff');
+  const handleFrequencyChange = (event) => {
+    const selectedFrequency = event.target.value;
+    console.log(`🎯 User Selected Frequency: ${selectedFrequency}`);
+    setFrequency(selectedFrequency);  
   };
 
   return (
@@ -42,13 +46,13 @@ const CleaningPlan = ({ formData, setFormData }) => {
         </label>
         <select
           name="cleaningPlan"
-          value={selectedTier === 'basic' ? 'basic-cleaning' : 'deep-cleaning'}
+          value={selectedTier}
           onChange={handlePlanChange}
           className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
         >
           <option value="">Select an option</option>
-          <option value="basic-cleaning">Basic Cleaning</option>
-          <option value="deep-cleaning">Deep Cleaning</option>
+          <option value="basic">Basic Cleaning</option>
+          <option value="deep">Deep Cleaning</option>
         </select>
       </div>
 
@@ -58,11 +62,7 @@ const CleaningPlan = ({ formData, setFormData }) => {
         </label>
         <select
           name="cleaningFrequency"
-          value={Object.entries({
-            onceAWeek: 'weekly',
-            twiceAWeek: 'biweekly',
-            everyday: 'monthly'
-          }).find(([key]) => key === frequency)?.[1] || ''}
+          value={frequency}
           onChange={handleFrequencyChange}
           className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
         >
@@ -87,26 +87,27 @@ const CleaningPlan = ({ formData, setFormData }) => {
       </div>
 
       <div className="w-[50rem]">
-        <label className="text-[1.4rem] font-semibold block mb-[1rem]">
-          Preferred time for cleaner to start each time
-        </label>
-        <select
-          name="cleaningPlan"
-          // value={selectedTier === 'basic' ? 'basic-cleaning' : 'deep-cleaning'}
-          // onChange={handlePlanChange}
-          className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
-        >
-          <option value="">Select an option</option>
-          <option value="basic-cleaning">Morning</option>
-          <option value="deep-cleaning">Afternoon</option>
-          <option value="deep-cleaning">Evening</option>
-        </select>
-      </div>
+  <label className="text-[1.4rem] font-semibold block mb-[1rem]">
+    Preferred time for cleaner to start each time
+  </label>
+  <select
+    name="preferredStartTime" 
+    value={formData.preferredStartTime || ""}
+    onChange={e => setFormData({ ...formData, preferredStartTime: e.target.value })} 
+    className="w-full px-[1rem] py-[0.7rem] border font-normal rounded-[0.4rem] border-sageForm bg-white text-[1.4rem] outline-none focus:ring-1 focus:ring-sageDarkBlue h-[5rem]"
+  >
+    <option value="">Select an option</option>
+    <option value="morning">Morning</option>
+    <option value="afternoon">Afternoon</option>
+    <option value="evening">Evening</option>
+  </select>
+</div>
+
 
       <div className="flex flex-col items-center gap-[1rem] justify-center mt-3">
         <span className="font-semibold text-[1.4rem]">Cost</span>
         <span className="font-bold text-[3.6rem] text-sageFormBlue">
-          ₦{getTotalPrice().toLocaleString()}
+          ₦{(formData.totalPrice || 0).toLocaleString()}
         </span>
       </div>
     </form>
